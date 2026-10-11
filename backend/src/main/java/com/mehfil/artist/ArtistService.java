@@ -6,6 +6,7 @@ import com.mehfil.common.Dto;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,6 +23,7 @@ public class ArtistService {
     private final ArtistProfileRepository profiles;
     private final CategoryRepository categories;
     private final UserRepository users;
+    private final JdbcClient db;
     @Value("${app.auto-approve-artists}") private boolean autoApprove;
 
     public Page<Dto.ArtistCard> search(String category, String city, Integer maxPrice, String q, int page, int size, String sort) {
@@ -93,8 +95,9 @@ public class ArtistService {
     private static List<String> langs(String s) { return StringUtils.hasText(s) ? Arrays.asList(s.split(",")) : List.of(); }
 
     public Dto.ArtistCard toCard(ArtistProfile p) {
+        long followers = db.sql("select count(*) from follows where artist_id = :a").param("a", p.getId()).query(Long.class).single();
         return new Dto.ArtistCard(p.getId(), p.getSlug(), p.getStageName(), p.getCategory().getName(), p.getCity(),
-            p.getAvgRating(), p.getBookingsCount(), p.getStartingPrice(), p.getVerificationStatus() == VerificationStatus.APPROVED, p.getAvatarUrl());
+            p.getAvgRating(), p.getBookingsCount(), (int) followers, p.getStartingPrice(), p.getVerificationStatus() == VerificationStatus.APPROVED, p.getAvatarUrl());
     }
 
     public Dto.ArtistDetail toDetail(ArtistProfile p) {

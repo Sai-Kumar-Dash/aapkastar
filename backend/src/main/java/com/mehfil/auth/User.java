@@ -10,6 +10,9 @@ public class User {
     @Column(unique = true) private String phone;
     private String passwordHash;
     private String email;
+    private String avatarUrl;
+    @Column(nullable = false) private String membershipPlan = "FREE";
+    private Instant membershipExpiresAt;
     @Column(nullable = false) private String name;
     @Enumerated(EnumType.STRING) @Column(nullable = false) private Role role;
     private Instant createdAt = Instant.now();

@@ -24,11 +24,20 @@ public class AuthController {
     @PostMapping("/auth/register")
     public Dto.AuthResponse register(@Valid @RequestBody Dto.Register r) { return auth.register(r); }
 
+    @PostMapping("/auth/phone/register")
+    public Dto.AuthResponse phoneRegister(@Valid @RequestBody Dto.PhoneRegister r) { return auth.phoneRegister(r); }
+
+    @PostMapping("/auth/phone/login")
+    public Dto.AuthResponse phoneLogin(@Valid @RequestBody Dto.PhoneLogin r) { return auth.phoneLogin(r); }
+
     @PostMapping("/auth/login")
     public Dto.AuthResponse login(@Valid @RequestBody Dto.Login r) { return auth.login(r); }
 
     @PostMapping("/auth/google")
     public Dto.AuthResponse google(@Valid @RequestBody Dto.GoogleLogin r) { return auth.google(r); }
+
+    @PostMapping("/auth/google/complete")
+    public Dto.AuthResponse googleComplete(@Valid @RequestBody Dto.GoogleComplete r) { return auth.googleComplete(r); }
 
     @GetMapping("/me")
     public Dto.UserDto me(@AuthenticationPrincipal Long userId) {

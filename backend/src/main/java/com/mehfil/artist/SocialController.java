@@ -20,10 +20,12 @@ public class SocialController {
 
     private static final String POSTS = """
         select p.id, p.type, p.text, p.media_url as "mediaUrl", p.created_at as "createdAt",
-               a.id as "artistId", a.slug as "artistSlug", a.stage_name as "artistName", a.avatar_url as "avatarUrl"
+               a.id as "artistId", a.slug as "artistSlug", a.stage_name as "artistName", a.avatar_url as "avatarUrl",
+               (select count(*) from votes v where v.kind = 'POST' and v.item_id = p.id) as votes,
+               (select count(*) from post_comments c where c.post_id = p.id) as comments
         from posts p join artist_profiles a on a.id = p.artist_id """;
 
-    public record PostReq(@Pattern(regexp = "TEXT|PHOTO|VIDEO", message = "Invalid post type") String type,
+    public record PostReq(@Pattern(regexp = "TEXT|PHOTO", message = "Only article or photo posts are supported right now") String type,
                           @Size(max = 2000) String text, @Size(max = 600) String mediaUrl) {}
 
     @GetMapping("/feed")
