@@ -61,7 +61,7 @@ function shell(){
    <section class="yh-pn"><div class="yh-h"><h3>Upcoming Events</h3><a href="#/discover">See all</a></div><div id="yhEv"></div></section>
    <section class="yh-pn"><div class="yh-h"><h3>Trending Creators</h3><a href="#/discover">See all</a></div><div id="yhTr"></div></section>
   </aside>
- </div><div class="yh-mobile-bottom">${[['home','Home','#/'],['search','Discover','#/discover'],['cal','Events','#/bookings'],['fol','Following','#/following'],['msg','Alerts','#/alerts'],['sv','Saved','#/saved']].map((x,i)=>`<a class="${i?'':'on'}" href="${x[2]}">${ic(x[0])}<span>${x[1]}</span></a>`).join('')}</div>`);
+ </div><div class="yh-mobile-bottom">${[['home','Home','#/'],['cal','Events','#/bookings'],...(U&&U.role==='ARTIST'?[['plus','Create','#/studio']]:[['fol','Following','#/following']]),['msg','Alerts','#/alerts'],['sv','Saved','#/saved']].map((x,i)=>x[0]==='plus'?`<a class="yh-create" href="${x[2]}" aria-label="Create post"><b>+</b><span>Create</span></a>`:`<a class="${i===0?'on':''}" href="${x[2]}">${ic(x[0])}<span>${x[1]}</span></a>`).join('')}</div>`);
 }
 
 function heroSlide(item){
@@ -293,12 +293,12 @@ nav .topbar{height:76px!important;width:calc(100% - 40px)!important;max-width:15
   .yh-mobile-alert{position:relative}
   .yh-mobile-alert i{position:absolute;right:-1px;top:-1px;width:6px;height:6px;background:#ff1820;border:1px solid #08090a;border-radius:50%}
   .yh-mobile-actions .yh-av.sm{width:27px;height:27px;background:#2b2d30}
-  .yh-mobile-bottom{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;left:0;right:0;bottom:0;z-index:100;height:68px;padding:7px 4px max(7px,env(safe-area-inset-bottom));background:rgba(8,9,10,.97);border-top:1px solid #292a2d;box-shadow:0 -8px 30px #0008;backdrop-filter:blur(16px)}
+  .yh-mobile-bottom{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:100;height:68px;padding:7px 4px max(7px,env(safe-area-inset-bottom));background:rgba(8,9,10,.97);border-top:1px solid #292a2d;box-shadow:0 -8px 30px #0008;backdrop-filter:blur(16px)}
   .yh-mobile-bottom a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#777;font-size:9px;font-weight:700;min-width:0}
   .yh-mobile-bottom svg{width:19px;height:19px}
   .yh-mobile-bottom a.on,.yh-mobile-bottom a:active{color:#ff1820}
-  .yh-mobile-bottom a span{white-space:nowrap}
-  .yh{padding-bottom:18px}
+  .yh-mobile-bottom a span{white-space:nowrap}.yh-mobile-bottom .yh-create b{display:grid;place-items:center;width:42px;height:42px;margin-top:-20px;border-radius:50%;background:#ff1820;color:#fff;font-size:30px;line-height:1;box-shadow:0 0 0 5px #08090a}.yh-mobile-bottom .yh-create{color:#fff}.yh-mobile-bottom .yh-create span{margin-top:1px}
+  .yh{padding-bottom:18px}.yh-c .yh-av.lg{width:82px;height:82px;border-radius:50%;overflow:hidden}.yh-c .yh-av.lg img{border-radius:50%;object-fit:cover}
 }
 @media(max-width:380px){
   .global-search input::placeholder{font-size:10px}
