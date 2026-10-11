@@ -28,7 +28,7 @@ public class MembershipPaymentController {
 
     @PostMapping("/order")
     public Map<String,Object> order(@AuthenticationPrincipal Long uid,@Valid @RequestBody OrderReq r){
-        int amount=switch(r.plan().toUpperCase()){case "PLUS"->49;case "PRO"->149;default->throw bad("Choose Plus or Pro")};
+        int amount=switch(r.plan().toUpperCase()){case "PLUS"->49;case "PRO"->149;default->throw bad("Choose Plus or Pro")};;
         if(keyId.isBlank()||keySecret.isBlank()) throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,"Razorpay is not configured yet. Add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to Render.");
         try{
             Map<?,?> out=RestClient.create().post().uri("https://api.razorpay.com/v1/orders").headers(h->h.setBasicAuth(keyId,keySecret)).body(Map.of("amount",amount*100,"currency","INR","receipt","yfs_"+uid+"_"+System.currentTimeMillis())).retrieve().body(Map.class);
