@@ -26,7 +26,7 @@ const fmtFollowers=n=>{
  return String(n);
 };
 
-function navHome(){
+function navHome(){return;
  const n=$('#na');
  if(U){
    n.innerHTML=`<a class="nav-pill" href="#/profile">Profile</a><a class="nav-pill" href="#/following">Following</a><a class="nav-pill premium-mini" href="#/membership">Membership</a><a class="btn ghost sm" href="#/saved">Saved</a><a class="btn sm" href="#/" onclick="logout();return false">Log out</a>`;
@@ -61,7 +61,7 @@ function shell(){
    <section class="yh-pn"><div class="yh-h"><h3>Upcoming Events</h3><a href="#/discover">See all</a></div><div id="yhEv"></div></section>
    <section class="yh-pn"><div class="yh-h"><h3>Trending Creators</h3><a href="#/discover">See all</a></div><div id="yhTr"></div></section>
   </aside>
- </div><div class="yh-mobile-bottom">${[['home','Home','#/'],['cal','Events','#/bookings'],...(U&&U.role==='ARTIST'?[['plus','Create','#/studio']]:[['fol','Following','#/following']]),['msg','Alerts','#/alerts'],['sv','Saved','#/saved']].map((x,i)=>x[0]==='plus'?`<a class="yh-create" href="${x[2]}" aria-label="Create post"><b>+</b><span>Create</span></a>`:`<a class="${i===0?'on':''}" href="${x[2]}">${ic(x[0])}<span>${x[1]}</span></a>`).join('')}</div>`);
+ </div><div class="yh-mobile-bottom">${[['home','Home','#/'],['search','Discover','#/discover'],['cal','Events','#/bookings'],['fol','Following','#/following'],['msg','Alerts','#/alerts'],['sv','Saved','#/saved']].map((x,i)=>`<a class="${i?'':'on'}" href="${x[2]}">${ic(x[0])}<span>${x[1]}</span></a>`).join('')}</div>`);
 }
 
 function heroSlide(item){
@@ -138,6 +138,7 @@ function renderPosts(posts){
   <footer><button class="yh-up-b ${VT.has('POST-'+p.id)?'on':''}" onclick="yhVote(${p.id},this)">▲ <span>${Number(p.votes||0)}</span></button><button onclick="commentToggle(${p.id})">💬 ${Number(p.comments||0)}</button></footer>
   <div id="pc-${p.id}" class="post-comments" style="display:none"></div></article>`).join('');
 }
+window.__yhRenderPosts=renderPosts;
 window.yhVote=async(id,b)=>{if(!U){toast('Log in to upvote.');location.hash='#/login';return}
  const k='POST-'+id,on=VT.has(k),s=b.querySelector('span'),n=+s.textContent;b.disabled=true;
  try{await api('/api/me/votes/POST/'+id,{m:on?'DELETE':'PUT'});on?VT.delete(k):VT.add(k);b.classList.toggle('on',!on);s.textContent=n+(on?-1:1)}catch(e){toast(e.message)}b.disabled=false};
@@ -154,11 +155,9 @@ window.home=async function(){
  // No hard-coded people, events, follower counts, stock photos, or demo content.
  try{
    if(U){try{VT=new Set(await api('/api/me/votes'))}catch(_){}try{FOL=new Set(await api('/api/me/follows'))}catch(_){}}
-   const [homeData, artistsData, posts] = await Promise.all([
-     api('/api/home'),
-     api('/api/artists?size=20&sort=rating'),
-     api('/api/feed')
-   ]);
+   const R=await Promise.allSettled([api('/api/home'),api('/api/artists?size=20&sort=rating'),api('/api/feed')]);
+   const [homeData, artistsData, posts]=R.map((x,i)=>x.status==='fulfilled'?x.value:(i===2?[]:{}));
+   if(R.every(x=>x.status==='rejected'))throw new Error('offline');
    const events=Array.isArray(homeData.events)?homeData.events:[];
    const creators=Array.isArray(artistsData.content)?artistsData.content:[];
    const liveCreators=creators.filter(a=>a.verified!==false);
@@ -293,12 +292,12 @@ nav .topbar{height:76px!important;width:calc(100% - 40px)!important;max-width:15
   .yh-mobile-alert{position:relative}
   .yh-mobile-alert i{position:absolute;right:-1px;top:-1px;width:6px;height:6px;background:#ff1820;border:1px solid #08090a;border-radius:50%}
   .yh-mobile-actions .yh-av.sm{width:27px;height:27px;background:#2b2d30}
-  .yh-mobile-bottom{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:100;height:68px;padding:7px 4px max(7px,env(safe-area-inset-bottom));background:rgba(8,9,10,.97);border-top:1px solid #292a2d;box-shadow:0 -8px 30px #0008;backdrop-filter:blur(16px)}
+  .yh-mobile-bottom{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;left:0;right:0;bottom:0;z-index:100;height:68px;padding:7px 4px max(7px,env(safe-area-inset-bottom));background:rgba(8,9,10,.97);border-top:1px solid #292a2d;box-shadow:0 -8px 30px #0008;backdrop-filter:blur(16px)}
   .yh-mobile-bottom a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#777;font-size:9px;font-weight:700;min-width:0}
   .yh-mobile-bottom svg{width:19px;height:19px}
   .yh-mobile-bottom a.on,.yh-mobile-bottom a:active{color:#ff1820}
-  .yh-mobile-bottom a span{white-space:nowrap}.yh-mobile-bottom .yh-create b{display:grid;place-items:center;width:42px;height:42px;margin-top:-20px;border-radius:50%;background:#ff1820;color:#fff;font-size:30px;line-height:1;box-shadow:0 0 0 5px #08090a}.yh-mobile-bottom .yh-create{color:#fff}.yh-mobile-bottom .yh-create span{margin-top:1px}
-  .yh{padding-bottom:18px}.yh-c .yh-av.lg{width:82px;height:82px;border-radius:50%;overflow:hidden}.yh-c .yh-av.lg img{border-radius:50%;object-fit:cover}
+  .yh-mobile-bottom a span{white-space:nowrap}
+  .yh{padding-bottom:18px}
 }
 @media(max-width:380px){
   .global-search input::placeholder{font-size:10px}
@@ -316,7 +315,8 @@ addEventListener('hashchange',()=>{if(location.hash && location.hash!=='#/' && l
 window.route=function(){const h=location.hash||'#/';scrollTo(0,0);nav();
  if(h.startsWith('#/discover'))discover(h);else if(h.startsWith('#/artist/'))artist(h.split('/')[2]);else if(/^#\/(login|signup)/.test(h))authPage(h);else if(h.startsWith('#/studio'))studio();else if(h.startsWith('#/saved'))saved();else if(h.startsWith('#/enquiries'))enquiries();else if(h.startsWith('#/event/'))evPage(h.split('/')[2]);else if(h.startsWith('#/announce'))announce();else if(h.startsWith('#/alerts'))alerts();else if(h.startsWith('#/profile'))profilePage();else if(h.startsWith('#/membership'))membershipPage();else if(h.startsWith('#/following'))following();else if(h.startsWith('#/bookings'))bookings();else home()};
 addEventListener('hashchange',()=>route());
-(async()=>{try{await loadMembership();await loadMe();await loadLib()}catch(e){}route()})();
+const boot=async()=>{try{await loadMembership();await loadMe();await loadLib()}catch(e){}route()};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 const X=document.createElement('style');X.textContent=`
 .yh-p{animation:yhIn .5s cubic-bezier(.22,1,.36,1) both;animation-delay:calc(var(--i,0)*60ms)}@keyframes yhIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 .yh-p header a{min-width:0}.yh-p header small{flex:1}.yh-fol{border:1.5px solid #ff0a0a;background:transparent;color:#ff4a4f;border-radius:99px;padding:5px 13px;font-size:12px;font-weight:700;cursor:pointer;transition:.18s}.yh-fol:hover{background:#ff0a0a;color:#fff}.yh-fol.on{background:#1b1b1d;border-color:#3a3b3e;color:#ddd}

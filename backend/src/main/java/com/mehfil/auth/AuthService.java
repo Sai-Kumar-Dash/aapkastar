@@ -21,6 +21,7 @@ public class AuthService {
     private final OtpRepository otps;
     private final UserRepository users;
     private final PasswordEncoder encoder;
+    private final com.mehfil.artist.ArtistService artistService;
     private final JwtService jwt;
     private final SecureRandom rnd = new SecureRandom();
     @Value("${app.dev-mode}") private boolean devMode;
@@ -109,14 +110,9 @@ public class AuthService {
         Map<String, Object> g = verifyGoogle(r.idToken());
         String email = String.valueOf(g.get("email")).toLowerCase();
         Optional<User> existing = users.findByEmail(email);
-        if (existing.isPresent()) return new Dto.AuthResponse(jwt.issue(existing.get()), toDto(existing.get()), false);
-        Role role = (r.role() == null || r.role() == Role.ADMIN) ? Role.CUSTOMER : r.role();
-        User n = new User();
-        n.setEmail(email); n.setRole(role);
-        n.setName(g.get("name") == null ? "YourFavStar User" : String.valueOf(g.get("name")));
-        if (g.get("picture") != null) n.setAvatarUrl(String.valueOf(g.get("picture")));
-        User u = users.save(n);
-        return new Dto.AuthResponse(jwt.issue(u), toDto(u), true);
+        if (existing.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No account found for this Google account. Please sign up first.");
+        return new Dto.AuthResponse(jwt.issue(existing.get()), toDto(existing.get()), false);
     }
 
     public Dto.AuthResponse googleComplete(Dto.GoogleComplete r) {
@@ -141,7 +137,9 @@ public class AuthService {
         User n = new User();
         n.setEmail(email); n.setPhone(r.phone().trim()); n.setPasswordHash(encoder.encode(r.password()));
         n.setName(name); n.setRole(r.role());
+        if (g.get("picture") != null) n.setAvatarUrl(String.valueOf(g.get("picture")));
         User u = users.save(n);
+        if (u.getRole() == Role.ARTIST) artistService.ensureProfile(u);
         return new Dto.AuthResponse(jwt.issue(u), toDto(u), true);
     }
 

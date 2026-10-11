@@ -33,7 +33,7 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(a -> a
                 .requestMatchers("/api/auth/**", "/error", "/", "/index.html").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/artists/**", "/api/categories", "/api/feed", "/api/home", "/api/events/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/artists/**", "/api/categories", "/api/feed", "/api/home", "/api/events/**", "/api/media/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))

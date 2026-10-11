@@ -1,7 +1,5 @@
-// Set these values before deploying the frontend to Netlify.
+// Edit these 2 values, then upload the frontend folder to Netlify.
 window.CFG = {
-  API: "https://YOUR-RENDER-SERVICE.onrender.com",
-  GOOGLE_CLIENT_ID: "",
-  CLOUD_NAME: "",
-  UPLOAD_PRESET: ""
+  API: "https://aapkastar-api.onrender.com",   // your Render backend URL (no trailing slash)
+  GOOGLE_CLIENT_ID: ""                         // Google OAuth Web client ID ("xxxx.apps.googleusercontent.com")
 };

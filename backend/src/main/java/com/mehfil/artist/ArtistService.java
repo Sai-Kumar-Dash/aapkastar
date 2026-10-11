@@ -59,6 +59,19 @@ public class ArtistService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Create your artist profile first"));
     }
 
+    /** Gives every new creator a live starter profile so they can post immediately; they can edit it in Studio. */
+    public void ensureProfile(User u) {
+        if (profiles.findByUserId(u.getId()).isPresent()) return;
+        Category cat = categories.findAll().stream().findFirst().orElse(null);
+        if (cat == null) return;
+        ArtistProfile n = new ArtistProfile();
+        n.setUser(u); n.setSlug(uniqueSlug(u.getName() + " creator")); n.setStageName(u.getName()); n.setCategory(cat);
+        n.setCity("India"); n.setBio(""); n.setLanguages(""); n.setAvatarUrl(u.getAvatarUrl());
+        n.setVerificationStatus(autoApprove ? VerificationStatus.APPROVED : VerificationStatus.PENDING);
+        n.setUpdatedAt(java.time.Instant.now());
+        profiles.save(n);
+    }
+
     public Dto.ArtistDetail upsert(Long userId, Dto.ArtistUpsert r) {
         User u = users.findById(userId).orElseThrow();
         Category cat = categories.findBySlug(r.categorySlug().toLowerCase())
@@ -70,7 +83,7 @@ public class ArtistService {
             return n;
         });
         p.setStageName(r.stageName().trim()); p.setCategory(cat); p.setCity(r.city().trim());
-        p.setAvatarUrl(r.avatarUrl()); p.setCoverUrl(r.coverUrl()); p.setBio(r.bio()); p.setExperienceYears(r.experienceYears()); p.setStartingPrice(r.startingPrice());
+        p.setAvatarUrl(r.avatarUrl() == null || r.avatarUrl().isBlank() ? u.getAvatarUrl() : r.avatarUrl()); p.setCoverUrl(r.coverUrl()); p.setBio(r.bio()); p.setExperienceYears(r.experienceYears()); p.setStartingPrice(r.startingPrice());
         p.setLanguages(r.languages() == null ? "" : String.join(",", r.languages()));
         if (p.getVerificationStatus() == VerificationStatus.DRAFT || p.getVerificationStatus() == VerificationStatus.REJECTED)
             p.setVerificationStatus(autoApprove ? VerificationStatus.APPROVED : VerificationStatus.PENDING);

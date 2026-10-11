@@ -21,14 +21,17 @@ Environment variables (keep your existing Neon vars from `render.yaml`) plus:
 ## 4. Frontend (Netlify → drag & drop the `frontend` folder)
 Edit `frontend/config.js` first:
 ```js
-window.CFG={API:"https://YOUR-RENDER-SERVICE.onrender.com",GOOGLE_CLIENT_ID:"xxxx.apps.googleusercontent.com",CLOUD_NAME:"",UPLOAD_PRESET:""};
+window.CFG={API:"https://YOUR-RENDER-SERVICE.onrender.com",GOOGLE_CLIENT_ID:"xxxx.apps.googleusercontent.com"};
 ```
-(Cloudinary values are only needed for photo uploads; text posts work without them.)
+Photos are stored in your own Neon database (no Cloudinary needed). They are shrunk in the browser to ~1400px first.
+
+## Changing the home banners
+Edit `frontend/banners.js` (image, title, link). Put your own images in `frontend/banners/` or use any image URL, then re-upload the folder to Netlify.
 
 ## 5. Test with two accounts
 Use two different Google accounts (or one normal + one incognito window).
-1. **Creator:** Sign Up → "A creator" → Continue with Google → fill the Studio profile → write a post.
-2. **Fan:** Sign Up → "A fan" → Google → on Home tap **▲** to upvote and **Follow** on the creator's post.
-3. Optional: Profile → "Add mobile & password" so the account can also log in with phone + password.
+1. **Creator:** Sign Up → Creator → Next → Google → mobile + password twice → Create account. A starter profile is created automatically. Tap the red **+** (bottom bar on mobile, **+ Post** on desktop) to post text or a photo.
+2. **Fan:** Sign Up → Follower → Next → Google → mobile + password. On Home tap **▲** to upvote and **Follow** on the creator's post.
+3. Log in later with Google, or mobile number → Next → password.
 
 Render free tier sleeps; the first request after idle can take ~50 s.
